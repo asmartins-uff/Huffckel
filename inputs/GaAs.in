@@ -1,0 +1,37 @@
+Galium_Arsenide           !  CTIT           -> Tile of the calculation
+3                         ! KCALC           -> Kind of calculation (real or kspace)
+2                         ! IBRAV           -> Bravais Group for the atomic positions 
+2                         ! NUMTP           -> number of atom types of the system
+31  33                    !   ZAT           -> Atomic numbers of the species
+Ga  As                    ! ZSIMB           -> Atomic symbols of the species
+3  3                      ! NORBV           -> Number of Valence orbitals
+4  4  4                   !  NVAL           -> N Quantum Number of the valence orbitals
+4  4  4
+0  1  2                   !  LVAL           -> L Quantum Number of the valence orbitals
+0  1  2
+2  1  0                   ! NEAO            -> Number of Electrons of the Atomic Orbitals
+2  3  0
+5.65  1.000               ! LPAR, COVA      -> Lattice Parameter and c/a ratio (HCP structures)
+2  2  2                   ! (Nx,Ny,Nz)      -> Supercell Dimensions
+9.0                       ! RCUT            -> Cuttof for atom-atom interaction
+2.28     2.28             ! KEHT            -> Parameter for the Huckel Hamiltonian for each specie
+2  2  2                   ! NZT(I,J)        -> # of STO for the J orbital of I specie
+2  2  2
+ 2.041  0.662             ! ZETA, CF        -> ZETA and COEFFICIENT for the STO 
+25.000  0.760
+ 1.616  0.705
+ 5.835  0.596
+ 1.028  0.636
+25.000  0.772
+ 2.344  0.634
+25.000  0.772
+ 2.102  0.753
+ 7.588  0.539
+ 0.918  0.660
+ 3.926  0.681
+-17.629  -10.766  -3.507  ! ESIT(NUMTP,3)  -> On-site energies of the valence orbitals
+-21.764  -12.822  -5.488
+13.0267d0                 ! ESHIFT         -> Shift to the hamiltonian values
+1   1                     ! IMC and IDS    -> Flags for the computation of the Mulliken charges and Density of states
+10  10  10                ! QP, QR and QS  -> Dimension of the Monkhost-Pack Grid
+1   10                    ! ICP1 and ICP2  -> Basis orbital for COOP

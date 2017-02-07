@@ -1,0 +1,27 @@
+Crystalline_Silicon       !  CTIT           -> Tile of the calculation
+2                         ! KCALC           -> Kind of calculation (real or kspace)
+3                         ! IBRAV           -> Bravais Group for the atomic positions 
+1                         ! NUMTP           -> number of atom types of the system
+14                        !   ZAT           -> Atomic numbers of the species
+Si                        ! ZSIMB           -> Atomic symbols of the species
+3                         ! NORBV           -> Number of Valence orbitals
+3  3  3                   !  NVAL           -> N Quantum Number of the valence orbitals
+0  1  2                   !  LVAL           -> L Quantum Number of the valence orbitals
+2  2  0                   ! NEAO            -> Number of Electrons of the Atomic Orbitals
+5.431 1.000               ! LPAR, COVA      -> Lattice Parameter and c/a ratio (HCP structures)
+4  4  4                   ! (Nx,Ny,Nz)      -> Supercell Dimensions
+9.0                       ! RCUT            -> Cuttof for atom-atom interaction
+2.622                     ! KEHT            -> Parameter for the Huckel Hamiltonian for each specie
+2  2  2                   ! NZT(I,J)        -> # of STO for the J orbital of I specie
+ 1.864  0.720             ! ZETA, CF        -> ZETA and COEFFICIENT for the STO 
+25.000  0.694
+ 1.470  0.303
+ 1.813  0.705
+ 0.675  0.671
+ 1.705  0.485
+-18.137  -11.277  -5.336  ! ESIT(NUMTP,3)  -> On-site energies of the valence orbitals
+13.0284d0                 ! ESHIFT         -> Shift to the hamiltonian values
+0   0                     ! IMC and IDS    -> Flags for the computation of the Mulliken charges and Density of states
+10  10  10                ! QP, QR and QS  -> Dimension of the Monkhost-Pack Grid
+1   10                    ! ICP1 and ICP2  -> Basis orbital for COOP
+
