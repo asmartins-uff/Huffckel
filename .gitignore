@@ -1,3 +1,5 @@
 htb.x
 inputs/*  
 src/huffckel
+src/*.o
+src/*.mod
