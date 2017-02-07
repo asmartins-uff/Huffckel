@@ -24,8 +24,9 @@ integer, allocatable     :: zat(:)
 integer, allocatable     :: norbv(:), nval(:,:), lval(:,:), nzt(:,:), neao(:,:)
 real*8 , allocatable     :: zeta(:,:,:), cf(:,:,:), esit(:,:), keht(:,:)
 character*2, allocatable :: zsimb(:)
-character*40             :: cltit, ibravopt(6), kcalcopt(5)
-character*5              :: ppopt(0:1)
+character*40             :: cltit
+character*4              :: ibravopt(6)=(/'fcc ','zinc','sili','bcc ','hcp ','free'/), kcalcopt(5)
+character*5              :: ppopt(0:1) = (/'   NO','  YES'/)
 ! (iii) Internals
 real*8,  allocatable     :: rx(:), ry(:), rz(:), oe(:,:), hr(:,:), sr(:,:), W(:)
 real*8                   :: rpos(2,3), cl, cm, cn, cl2, cm2, cn2, rsq, ebin, version
@@ -76,45 +77,45 @@ print*, "The maximal number of the orbitals for each specie is 3."
 
 ! Files managed by the main program:
 
-open(4, file ='input.dat', status='unknown')
+!open(4, file ='input.dat', status='unknown')
 open(8, file ='atoms.dat', status='unknown')
 open(7, file ='positions.xyz', status='unknown')
 
 ! ------------------------ Reading the input file -----------------------------
 
-read(4,*) cltit                           ! Title of the Calculation
-read(4,*) kcalc                           ! Kind of Calculation (1 = REAL, 2 = BANDS and 3 = DOS)
-read(4,*) ibrav                           ! Bravais Group for the positions
-read(4,*) numtp                           ! Number of atom types of the system
+read(5,*) cltit                           ! Title of the Calculation
+read(5,*) kcalc                           ! Kind of Calculation (1 = REAL, 2 = BANDS and 3 = DOS)
+read(5,*) ibrav                           ! Bravais Group for the positions
+read(5,*) numtp                           ! Number of atom types of the system
 
 allocate(zat(numtp), zsimb(numtp), norbv(numtp))
 
-read(4,*) (  zat(i), i = 1, numtp)        ! Atomic numbers of the species
-read(4,*) (zsimb(i), i = 1, numtp)        ! Atomic symbols of the species
-read(4,*) (norbv(i), i = 1, numtp)        ! Number of Valence orbitals
+read(5,*) (  zat(i), i = 1, numtp)        ! Atomic numbers of the species
+read(5,*) (zsimb(i), i = 1, numtp)        ! Atomic symbols of the species
+read(5,*) (norbv(i), i = 1, numtp)        ! Number of Valence orbitals
 
 allocate(nval(numtp,3), lval(numtp,3),neao(numtp,3))
 
 do i = 1, numtp
-read(4,*) (nval(i,j), j = 1, norbv(i))    ! N Quantum Numbers of the valence orbitals
+read(5,*) (nval(i,j), j = 1, norbv(i))    ! N Quantum Numbers of the valence orbitals
 enddo
 
 do i = 1, numtp
-read(4,*) (lval(i,j), j = 1, norbv(i))    ! L Quantum Numbers of the valence orbitals
+read(5,*) (lval(i,j), j = 1, norbv(i))    ! L Quantum Numbers of the valence orbitals
 enddo
 
 do i = 1, numtp
-read(4,*) (neao(i,j), j = 1, norbv(i))    ! Number of Electrons of the J atomic Orbital
+read(5,*) (neao(i,j), j = 1, norbv(i))    ! Number of Electrons of the J atomic Orbital
 enddo
 
-read(4,*) lpar, cova
-read(4,*) nx, ny, nz
-read(4,*) rcut
+read(5,*) lpar, cova
+read(5,*) nx, ny, nz
+read(5,*) rcut
 
 ! Allocating KEHT:
 
 allocate(keht(numtp,numtp))
-read(4,*) (keht(i,i), i = 1, numtp)
+read(5,*) (keht(i,i), i = 1, numtp)
 
 ! Building the cross terms of KEHT (geometric average):
 
@@ -133,7 +134,7 @@ nzt(:,:) = 0
 ! Reading the number of STO for each basis orbital:
 
 do i = 1, numtp
-read(4,*) (nzt(i,j), j = 1, norbv(i))
+read(5,*) (nzt(i,j), j = 1, norbv(i))
 enddo
 
 ! Reading the ZETA(NUMTP,3,2) and the COEFFICIENTS CF(NUMTP,3,2) for the STO's
@@ -148,7 +149,7 @@ zeta(:,:,:) = 0.0d0
 do i = 1, numtp
   do j = 1, norbv(i)
      do k = 1, nzt(i,j)
-       read(4,*) zeta(i,j,k), cf(i,j,k)
+       read(5,*) zeta(i,j,k), cf(i,j,k)
      enddo
   enddo
 enddo
@@ -159,21 +160,21 @@ allocate(esit(numtp,3))
 esit(:,:) = 0.0d0
 
 do i = 1, numtp
-read(4,*) (esit(i,j), j = 1, norbv(i))
+read(5,*) (esit(i,j), j = 1, norbv(i))
 enddo
 
-! Reading the shift tho the hamiltonian values (to set up the fermi energy):
+! Reading the shift to the hamiltonian values (to set up the Fermi energy):
 
-read(4,*) eshift
+read(5,*) eshift
 
-! Reanding the integers that control the post-processing part:
+! Reading the integers that control the post-processing part:
 
-read(4,*) imc, ids
+read(5,*) imc, ids
 
-! Parameters needed to the post-processing:
+! Parameters needed for post-processing:
 
-read(4,*) qp, qr, qs        ! Monkhost-Pack Grid
-read(4,*) icp1, icp2        ! Basis orbital index for COOP
+read(5,*) qp, qr, qs        ! Monkhost-Pack Grid
+read(5,*) icp1, icp2        ! Basis orbital index for COOP
 
 ! ------------------- SETTING THE INITIAL VARIABLES -----------------------------
 
@@ -183,9 +184,15 @@ read(4,*) icp1, icp2        ! Basis orbital index for COOP
 
 allocate(ldm(0:lmax), dbov(numtp))
 
-ldm(0) = 1
-ldm(1) = 3
-ldm(2) = 5
+!ldm(0) = 1
+!ldm(1) = 3
+!ldm(2) = 5
+!
+! As três linhas acima podem ser substituídas por um laço, para o caso de lmax < 2:
+! (Marcos, 07/02/2017)
+!
+
+ldm(0:lmax) = (/(2*i+1,i=0,lmax)/)
 
 ! Assigning the total number of valence orbitals according to the basis dimension:
 
@@ -195,29 +202,29 @@ do i = 1, numtp
  enddo
 enddo
 
-! Pointer for each L value inside the basis: for each specie, this pointer
-! Gives the initial position in the basis for the orbital of L quantum number.
+! Pointer for each L value inside the basis: for each species, this pointer
+! gives the initial position in the basis for the orbital of quantum number L.
 
 allocate(lptb(numtp,0:lmax))
 
 do i = 1, numtp
 
-llp = norbv(i)
-select case (llp)
-case(1) ! Basis with only S orbital
-lptb(i,0) = 1
-case(2) ! Basis with S and P orbitals
-lptb(i,0) = 1
-lptb(i,1) = 2
-case(3) ! Basis with S, P and D orbitals
-lptb(i,0) = 1
-lptb(i,1) = 2
-lptb(i,2) = 5
-end select
+  llp = norbv(i)
+  select case (llp)
+    case(1) ! Basis with only S orbital
+       lptb(i,0) = 1
+    case(2) ! Basis with S and P orbitals
+       lptb(i,0) = 1
+       lptb(i,1) = 2
+    case(3) ! Basis with S, P and D orbitals
+       lptb(i,0) = 1
+       lptb(i,1) = 2
+       lptb(i,2) = 5
+  end select
 
 enddo
 
-! Post-Proceeding Options:
+! Post-Processing Options:
 
 ppopt(0) = '   NO'
 ppopt(1) = '  YES'
@@ -228,14 +235,18 @@ ppopt(1) = '  YES'
 ! If KCALC = 1, the program generates a supercell according the number of units
 ! Cells Nx, Ny and Nz, readen from the input file. We have the following options
 ! For the bravais Lattices: ibrav = 1 (FCC), ibrav = 2 (ZINC), ibrav = 3 (DIAMOND),
-! Ibrav = 4 (BCC), ibrav = 5 (HCP) or give the atomic positions (FREE):
+! Ibrav = 4 (BCC), ibrav = 5 (HCP) or give the atomic positions (FREE).
 
-ibravopt(1) = 'fcc'
-ibravopt(2) = 'zinc'
-ibravopt(3) = 'sili'
-ibravopt(4) = 'bcc'
-ibravopt(5) = 'hcp'
-ibravopt(6) = 'free'
+!
+! Inicialização do array ibravopt feita na declaração de variáveis (Marcos, 07/02/2017)
+!
+
+!ibravopt(1) = 'fcc'
+!ibravopt(2) = 'zinc'
+!ibravopt(3) = 'sili'
+!ibravopt(4) = 'bcc'
+!ibravopt(5) = 'hcp'
+!ibravopt(6) = 'free'
 
 pv1(:) = 0.0d0
 pv2(:) = 0.0d0
@@ -319,16 +330,16 @@ enddo
 ! Dimensions of the supercell (needed for KCALC = 1)
 
 if(ibrav.eq.6) then
- sdx = nx*dsqrt(pv1(1)*pv1(1) + pv1(2)*pv1(2) + pv1(3)*pv1(3))  
-  sdy = ny*dsqrt(pv2(1)*pv2(1) + pv2(2)*pv2(2) + pv2(3)*pv2(3))
+   sdx = nx*dsqrt(pv1(1)*pv1(1) + pv1(2)*pv1(2) + pv1(3)*pv1(3))  
+   sdy = ny*dsqrt(pv2(1)*pv2(1) + pv2(2)*pv2(2) + pv2(3)*pv2(3))
    sdz = nz*dsqrt(pv3(1)*pv3(1) + pv3(2)*pv3(2) + pv3(3)*pv3(3))
-    else
+else
    sdx = nx*lpar
-  sdy = ny*lpar
- sdz = nz*lpar*cova
+   sdy = ny*lpar
+   sdz = nz*lpar*cova
 endif
 
-! Volum of the primitive cell
+! Volume of the primitive cell
 
 vuc = pv1(1)*(pv2(2)*pv3(3) - pv2(3)*pv3(2)) + pv1(2)*(pv2(3)*pv3(1) - pv2(1)*pv3(3)) + &
       pv1(3)*(pv2(1)*pv3(2) - pv2(2)*pv3(1))
@@ -336,21 +347,21 @@ vuc = pv1(1)*(pv2(2)*pv3(3) - pv2(3)*pv3(2)) + pv1(2)*(pv2(3)*pv3(1) - pv2(1)*pv
 vuc = dabs(vuc)   ! For non-orthogonal primitive vectors
 
 ! ------------------- CALCULATION OF THE NEIGHBOR LIST ------------------------
-! Estimating  the number of neighbors for each atom: for systems with cristal
-! Simmetry, all the sites are equivalent and the number of neighbohrs will be
-! Proportional to the relative volume:
+! Estimating  the number of neighbors for each atom: for systems with crystal
+! symmetry, all the sites are equivalent and the number of neighbohrs will be
+! proportional to the relative volume:
 
 nnn = 0
 
 if(kcalc.eq.1) then
 
-nnn = dnint(1.0d0*nat) 
+   nnn = dnint(1.0d0*nat) 
 
-! Allocating the array that stores the information about the neighbors for each
-! Atom and calling the subroutine NEIGHBORS:
+   ! Allocating the array that stores the information about the neighbors for each
+   ! atom and calling the subroutine NEIGHBORS:
 
-allocate(nngh(nat), lisngh(nat,nnn))
-call neighbors(ibrav,nat,nnn,nx,ny,nz,lpar,pv1,pv2,pv3,rx,ry,rz,rcut,nngh,lisngh)
+   allocate(nngh(nat), lisngh(nat,nnn))
+   call neighbors(ibrav,nat,nnn,nx,ny,nz,lpar,pv1,pv2,pv3,rx,ry,rz,rcut,nngh,lisngh)
 
 endif
 
@@ -366,7 +377,7 @@ do i = 1, nat
 enddo
 
 ! -----------------------------------------------------------------------------
-!             Printing the information readed from the input file:
+!             Printing the information read from the input file:
 
 print*
 print*, "----------------------------------------------------------------------"
@@ -396,41 +407,49 @@ print*, "(iii) Information about the atom types:"
 print*
 write(*,'(a)')   '(a) Atomic numbers (ZAT) and Symbols:          '
 print*
+
 do k = 1, numtp
-write(*,'(a,a,i1,a,a,i2,a,a,a)') ' ZAT','(',k,')',' = ',zat(k),' (',zsimb(k),')'
+   write(*,'(a,a,i1,a,a,i2,a,a,a)') ' ZAT','(',k,')',' = ',zat(k),' (',zsimb(k),')'
 enddo
+
 print*
 write(*,'(a)')   '(b) Valence orbitals for each atom type:       '
 print*
+
 do k = 1, numtp
-write(*,'(a,a,i1,a,a,i2,a,a,a)') ' NORBV','(',k,')',' = ', norbv(k)
+   write(*,'(a,a,i1,a,a,i2,a,a,a)') ' NORBV','(',k,')',' = ', norbv(k)
 enddo
+
 print*
 write(*,'(a)')   '(c) Number of Electrons of the Atomic Orbitals:       '
 print*
+
 do k = 1, numtp
-write(*,'(a,a,a,a,a,a,a,a,a)') ' | ' , 'Specie' ,   ' | ' ,  '  (n,l)', '  | ', 'NEAO', ' |  ',  'ESIT', '   |  '
-print*
-  do j = 1, norbv(k)
-write(*,'(i7,a,i1,a,i1,a,i7,f10.3)') k, '       (',nval(k,j),',',lval(k,j),')', neao(k,j), esit(k,j)
-     enddo
-print*
+   write(*,'(a,a,a,a,a,a,a,a,a)') ' | ' , 'Specie' ,   ' | ' ,  '  (n,l)', '  | ', 'NEAO', ' |  ',  'ESIT', '   |  '
+   print*
+   do j = 1, norbv(k)
+      write(*,'(i7,a,i1,a,i1,a,i7,f10.3)') k, '       (',nval(k,j),',',lval(k,j),')', neao(k,j), esit(k,j)
+   enddo
+   print*
 enddo
+
 write(*,'(a,i6)') ' Total Number of Electrons: ', nelect
 print*
 write(*,'(a)')      '(d) Informations about the STOs for each specie:'
+
 do i = 1, numtp
-print*
-write(*,'(a,a,a)') ' (',zsimb(i),'):'
-print*
-write(*,'(a,a,a,a,a,a,a,a)') ' | ' , 'Specie' ,   ' | ' ,  ' (n,l)', ' | ', 'ZETA', '  | ', ' CJ '
-print*
-  do j = 1, norbv(i)
-     do k = 1, nzt(i,j)
-write(*,'(i7,a,i1,a,i1,a,2f8.3)') i, '      (',nval(i,j),',',lval(i,j),')', zeta(i,j,k), cf(i,j,k)
-     enddo
-  enddo
+   print*
+   write(*,'(a,a,a)') ' (',zsimb(i),'):'
+   print*
+   write(*,'(a,a,a,a,a,a,a,a)') ' | ' , 'Specie' ,   ' | ' ,  ' (n,l)', ' | ', 'ZETA', '  | ', ' CJ '
+   print*
+   do j = 1, norbv(i)
+      do k = 1, nzt(i,j)
+         write(*,'(i7,a,i1,a,i1,a,2f8.3)') i, '      (',nval(i,j),',',lval(i,j),')', zeta(i,j,k), cf(i,j,k)
+      enddo
+   enddo
 enddo
+
 print*
 print*, "(iv) Post-Processing Options :"
 print*
@@ -446,41 +465,41 @@ allocate(nspc(numtp))
 nspc(:) = 0
 
 do i = 1, nat
-j = itype(i)
-nspc(j) = nspc(j) + 1
+   j = itype(i)
+   nspc(j) = nspc(j) + 1
 enddo
 
 ! Total number of atomic orbitals:
 
 tnao = 0
 do i = 1, numtp
-tnao = tnao + nspc(i)*dbov(i)
+   tnao = tnao + nspc(i)*dbov(i)
 enddo
 
 write(*,*) 'TNAO =', tnao
 
-! Creating the SIP pointer, that gives the number of atomic orbitals up the I
-! Site.
+! Creating the SIP pointer, that gives the number of atomic orbitals up the I-th
+! site.
 
 allocate(sip(nat))
 
 sip(1) = 0   
 
 do i = 2, nat
-sip(i) = sip(i-1) + dbov(itype(i-1))
+   sip(i) = sip(i-1) + dbov(itype(i-1))
 enddo
 
-! Allocating the orbital energies according the specie:
+! Allocating the orbital energies according the species:
 
 allocate(oe(numtp,9))
 
 do i = 1, numtp
- do j = 1, norbv(i)
-  do k = 1, ldm(lval(i,j))
-   id = lptb(i,lval(i,j)) + k - 1
-   oe(i,id) = esit(i,j)
-  enddo
- enddo
+   do j = 1, norbv(i)
+      do k = 1, ldm(lval(i,j))
+         id = lptb(i,lval(i,j)) + k - 1
+         oe(i,id) = esit(i,j)
+      enddo
+   enddo
 enddo
 
 ! -----------------------------------------------------------------------------
@@ -494,7 +513,7 @@ case(2)   ! Generating the K-Points according with the Bravais Lattice:
 !**********************************************************************
 
 nspbz = 6
- ndiv = 20
+ndiv = 20
 
 allocate(kp(nspbz,3),kpmod(nspbz),kpmodacc(nspbz))
 
@@ -507,8 +526,8 @@ call kpoints(nspbz,ibrav,lpar,pi,kp,pv1,pv2,pv3)
 kpmodacc(1) = 0.0d0
 
 do i = 1, nspbz - 1
- kpmod(i) = dsqrt((kp(i+1,1) - kp(i,1))**2 + (kp(i+1,2) - kp(i,2))**2 + (kp(i+1,3) - kp(i,3))**2)
-  kpmodacc(i+1) = kpmodacc(i) + kpmod(i)
+   kpmod(i) = dsqrt((kp(i+1,1) - kp(i,1))**2 + (kp(i+1,2) - kp(i,2))**2 + (kp(i+1,3) - kp(i,3))**2)
+   kpmodacc(i+1) = kpmodacc(i) + kpmod(i)
 enddo
 
 ! Defining the total number of K-points:
@@ -521,15 +540,14 @@ allocate(kpoint(nkpt,3),kpcoord(nkpt))
 
 ikcount = 1 
 do ik = 1, nspbz - 1
-  do idv = 0, ndiv - 1
-    kpoint(ikcount,1) = kp(ik,1) + idv*(kp(ik+1,1) - kp(ik,1))/dfloat(ndiv)
+   do idv = 0, ndiv - 1
+      kpoint(ikcount,1) = kp(ik,1) + idv*(kp(ik+1,1) - kp(ik,1))/dfloat(ndiv)
       kpoint(ikcount,2) = kp(ik,2) + idv*(kp(ik+1,2) - kp(ik,2))/dfloat(ndiv)
-    kpoint(ikcount,3) = kp(ik,3) + idv*(kp(ik+1,3) - kp(ik,3))/dfloat(ndiv)
+      kpoint(ikcount,3) = kp(ik,3) + idv*(kp(ik+1,3) - kp(ik,3))/dfloat(ndiv)
 
-   kpcoord(ikcount) = kpmodacc(ik) + idv*kpmod(ik)/dfloat(ndiv)
-   ikcount = ikcount + 1
-
-  enddo
+      kpcoord(ikcount) = kpmodacc(ik) + idv*kpmod(ik)/dfloat(ndiv)
+      ikcount = ikcount + 1
+   enddo
 enddo
 
 !**********************************************************************
@@ -573,23 +591,23 @@ open(10,file='spectrum.dat', status='unknown')
 allocate(hr(tnao,tnao), sr(tnao,tnao), W(tnao))
 
 if(ibrav.eq.6) then
-call fcspec(ibrav,numtp,nat,nx,ny,nz,tnao,neao,norbv,itype,rcut,rx,ry,rz,pv1,pv2,pv3,oe,&
-            esit,keht,cf,zeta,ldm,sip,dbov,lptb,nzt,nval,lval,lpar,eshift,nelect,hr,sr,W)
+   call fcspec(ibrav,numtp,nat,nx,ny,nz,tnao,neao,norbv,itype,rcut,rx,ry,rz,pv1,pv2,pv3,oe,&
+               esit,keht,cf,zeta,ldm,sip,dbov,lptb,nzt,nval,lval,lpar,eshift,nelect,hr,sr,W)
 else
-call spectrum(numtp,nat,tnao,neao,norbv,itype,nnn,nngh,lisngh,rx,ry,rz,oe,esit,keht,cf,&
-              zeta,ldm,sip,dbov,lptb,nzt,nval,lval,lpar,eshift,sdx,sdy,sdz,nelect,hr,sr,W)
+   call spectrum(numtp,nat,tnao,neao,norbv,itype,nnn,nngh,lisngh,rx,ry,rz,oe,esit,keht,cf,&
+                 zeta,ldm,sip,dbov,lptb,nzt,nval,lval,lpar,eshift,sdx,sdy,sdz,nelect,hr,sr,W)
 endif
 
 ! Writing the eigenvalues:
 
 do i = 1, tnao
-write(10,'(i8,f12.5)') i, W(i)
+   write(10,'(i8,f12.5)') i, W(i)
 enddo
 
 ! Post-processing analysis:
 
 if((imc.eq.1).or.(ids.eq.1)) then
-call pp_real(nat,tnao,numtp,ibrav,neao,nelect,norbv,itype,dbov,W,hr,sr,imc,ids)
+   call pp_real(nat,tnao,numtp,ibrav,neao,nelect,norbv,itype,dbov,W,hr,sr,imc,ids)
 endif
 
 ! Deallocations:
@@ -607,7 +625,7 @@ print*
 
 allocate(eband(nkpt,tnao),hamk(nkpt,tnao,tnao),ovlk(nkpt,tnao,tnao))
 
- eband(:,:) = 0.0d0
+eband(:,:) = 0.0d0
 hamk(:,:,:) = cmplx(0.0d0,0.0d0)
 ovlk(:,:,:) = cmplx(0.0d0,0.0d0)
 
@@ -621,9 +639,9 @@ call bands(kcalc,ibrav,numtp,nat,tnao,norbv,itype,rx,ry,rz,pv1,pv2,pv3,oe,esit,k
 open(9, file='Bands.dat', status ='unknown')
 
 if(mod(nelect,2).eq.0) then
- flp = nelect/2
-  else
- flp = (nelect + 1)/2
+   flp = nelect/2
+else
+   flp = (nelect + 1)/2
 endif
 
 ! Writing the bands:
@@ -658,7 +676,7 @@ print*
 
 allocate(eband(nkpt,tnao),hamk(nkpt,tnao,tnao),ovlk(nkpt,tnao,tnao))
 
- eband(:,:) = 0.0d0
+eband(:,:) = 0.0d0
 hamk(:,:,:) = cmplx(0.0d0,0.0d0)
 ovlk(:,:,:) = cmplx(0.0d0,0.0d0)
 
@@ -670,9 +688,9 @@ call bands(kcalc,ibrav,numtp,nat,tnao,norbv,itype,rx,ry,rz,pv1,pv2,pv3,oe,esit,k
 ! Fermi Level Position and DOS calculation:  
 
 if(mod(nelect,2).eq.0) then
- flp = nelect/2
-  else
- flp = (nelect + 1)/2
+   flp = nelect/2
+else
+   flp = (nelect + 1)/2
 endif
 
 call pp_recp(numtp,nat,tnao,nelect,nkpt,itype,dbov,eband,hamk,ovlk,flp,imc,ids,icp1,icp2)
@@ -681,7 +699,7 @@ call pp_recp(numtp,nat,tnao,nelect,nkpt,itype,dbov,eband,hamk,ovlk,flp,imc,ids,i
      case(4)
 ! * * * * * * * * * * *
 
-write(*,'(a)') 'KCALC = 4: Total Energy Calculation in the Real Space'
+write(*,'(a)') 'KCALC = 4: Total Energy Calculation in Real Space'
 print*
 
 call tbte(kcalc,ibrav,numtp,nat,tnao,norbv,itype,neao,nx,ny,nz,rcut,rx,ry,rz,pv1,pv2,pv3,oe,&
@@ -691,7 +709,7 @@ call tbte(kcalc,ibrav,numtp,nat,tnao,norbv,itype,neao,nx,ny,nz,rcut,rx,ry,rz,pv1
      case(5)
 ! * * * * * * * * * * *
 
-write(*,'(a)') 'KCALC = 5: Total Energy Calculation in the Reciprocal Space'
+write(*,'(a)') 'KCALC = 5: Total Energy Calculation in Reciprocal Space'
 print*
 
 call tbte(kcalc,ibrav,numtp,nat,tnao,norbv,itype,neao,nx,ny,nz,rcut,rx,ry,rz,pv1,pv2,pv3,oe,&
