@@ -198,7 +198,7 @@ integer             :: n1, n2, l1, l2
 integer, intent(in) :: llsel(0:2,0:2), nnsel(5,5)
 ! (II) Intern:
 real(8) :: ovlp(0:2), pi, k, t, f, skt, k2, k3, k4, k5, k6, k7, k8, k9, t2, t3, t4, t5, t6, t7, t8, t9, t10, sqrtk
-real(8) :: alpha, alpha2, alpha3, alpha4, alpha5, alpha6, exp_minus_t
+real(8) :: alpha, alpha2, alpha3, alpha4, alpha5, alpha6, alpha7, alpha8, alpha9, alpha10, alpha11, exp_minus_t
 integer :: na, nb, la, lb, llopt, nnopt
 ! -----------------------------------------------------------------------------
 
@@ -266,9 +266,13 @@ alpha3 = alpha2*alpha
 alpha4 = alpha3*alpha
 alpha5 = alpha4*alpha
 alpha6 = alpha5*alpha
+alpha7 = alpha6*alpha
+alpha8 = alpha7*alpha
+alpha9 = alpha8*alpha
+alpha10 = alpha9*alpha
 
 sqrtk = sqrtk
-exp_minus_t = exp_minus_t
+exp_minus_t = dexp(-t)
 
 select case(nnopt)
 
@@ -283,7 +287,7 @@ case(0)   ! l1 = l2 = 0 => <s1|s2>
 !*********************************
 
 if(k.eq.1) then
-ovlp(0) = ovlp(0) + ((3.+ 3.*t + t2)*dexp_minus_t)/3.
+ovlp(0) = ovlp(0) + ((3.+ 3.*t + t2)*exp_minus_t)/3.
 else
 ovlp(0) = ovlp(0) + (8*k*((-4*k + k*(alpha)*t)*exp_minus_t + &
                     (4*k + (alpha)*t)*dexp(-(k*t)))*sqrtk)/(alpha3*t)
