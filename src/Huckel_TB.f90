@@ -590,6 +590,9 @@ open(10,file='spectrum.dat', status='unknown')
 
 allocate(hr(tnao,tnao), sr(tnao,tnao), W(tnao))
 
+write(*,*)
+write(*,'(a,i8,a,i8)') ' Hamiltonian matrix dimensions:                ', tnao,' x ', tnao
+
 if(ibrav.eq.6) then
    call fcspec(ibrav,numtp,nat,nx,ny,nz,tnao,neao,norbv,itype,rcut,rx,ry,rz,pv1,pv2,pv3,oe,&
                esit,keht,cf,zeta,ldm,sip,dbov,lptb,nzt,nval,lval,lpar,eshift,nelect,hr,sr,W)
