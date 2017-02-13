@@ -61,6 +61,16 @@ complex*16, allocatable  :: A(:,:), B(:,:), work(:)
 real*8, allocatable      :: w(:), rwork(:)
 integer, allocatable     :: iwork(:)
 character*1              :: jobz, uplo
+real(8)                  :: start,finish
+!
+! variáveis para autovalores via método QR 
+! (1o método da tabela 2.10 em http://www.netlib.org/lapack/lug/node48.html)
+!
+character                :: compz='V'
+integer                  :: ldz
+real(8), allocatable     :: dout(:), eout(:), qrwork(:)
+complex(16), allocatable :: ap(:)
+complex(16), allocatable :: z(:,:), tau(:)
 ! ------------------------------------------------------------------------
 
 ! PI value and Initializing the EGAP value:
@@ -217,7 +227,31 @@ hk(:,:) = hk(:,:) + eshift*sk(:,:)
 A(:,:) = hk(:,:)
 B(:,:) = sk(:,:)
 
+open(2634,file='times_bands.out',status='unknown')
+!
+! Diagonalização com zhegvd
+!
+call cpu_time(start)
 call zhegvd(itp, jobz, uplo, ndm, A, lda, B, ldb, W, work, lwork, rwork, lrwork, IWORK, LIWORK, INFO)
+call cpu_time(finish)
+write(2634,'(a,f18.10,a)') "Tempo de diagonalização com zhegvd: ", finish-start, " s"
+
+!
+! Diagonalização com dsteqr
+!
+ldz = max(1,tnao)
+allocate(ap(tnao*(tnao+1)/2), dout(tnao), eout(tnao-1), tau(tnao-1), z(ldz,tnao), qrwork(max(1,2*tnao-2)))
+do i=1,tnao
+   do j=i,tnao
+      ap(i+j*(j-1)/2) = hk(i,j)
+   end do
+end do
+call cpu_time(start)
+call zhptrd(uplo, tnao, ap, dout, eout, tau, info)
+call zsteqr('N', tnao, dout, eout, z, ldz, qrwork, info)
+call cpu_time(finish)
+write(2634,'(a,f18.10,a)') "Tempo de diagonalização com zsteqr: ", finish-start, " s"
+close(2634)
 
 ! Storing the bands in EBAND, HK(k) and OVLK(k) to calculate DOS:
 
