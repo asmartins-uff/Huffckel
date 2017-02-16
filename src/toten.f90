@@ -83,7 +83,7 @@ hamk(:,:,:) = cmplx(0.0d0,0.0d0)
 ovlk(:,:,:) = cmplx(0.0d0,0.0d0)
 
 call bands(kcalc,ibrav,numtp,nat,tnao,norbv,itype,rx,ry,rz,pv1,pv2,pv3,oe,esit,keht,cf,zeta,&
-           sip,ldm,dbov,lptb,nzt,nval,lval,lpar,eshift,nelect,nkpt,kpoint,hamk,ovlk,eband)
+           sip,ldm,dbov,lptb,nzt,nval,lval,lpar,eshift,nelect,nkpt,kpoint,hamk,ovlk,eband,rcut)
 
 ! Electronic energy:
 
