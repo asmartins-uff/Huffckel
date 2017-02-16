@@ -614,7 +614,7 @@ ovlk(:,:,:) = cmplx(0.0d0,0.0d0)
 ! Band-Structure Calculation:
 
 call bands(kcalc,ibrav,numtp,nat,tnao,norbv,itype,rx,ry,rz,pv1,pv2,pv3,oe,esit,keht,cf,zeta,&
-           sip,ldm,dbov,lptb,nzt,nval,lval,lpar,eshift,nelect,nkpt,kpoint,hamk,ovlk,eband)
+           sip,ldm,dbov,lptb,nzt,nval,lval,lpar,eshift,nelect,nkpt,kpoint,hamk,ovlk,eband,rcut)
 
 ! File for the Band Structure and determining the Fermi Level Position:
 
@@ -665,7 +665,7 @@ ovlk(:,:,:) = cmplx(0.0d0,0.0d0)
 ! Band-Structure Calculation:
 
 call bands(kcalc,ibrav,numtp,nat,tnao,norbv,itype,rx,ry,rz,pv1,pv2,pv3,oe,esit,keht,cf,zeta,&
-           sip,ldm,dbov,lptb,nzt,nval,lval,lpar,eshift,nelect,nkpt,kpoint,hamk,ovlk,eband)
+           sip,ldm,dbov,lptb,nzt,nval,lval,lpar,eshift,nelect,nkpt,kpoint,hamk,ovlk,eband,rcut)
 
 ! Fermi Level Position and DOS calculation:  
 
