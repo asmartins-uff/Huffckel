@@ -33,7 +33,7 @@ CONTAINS
 !-----------------------------------------------------------------------
 
 subroutine bands(kcalc,ibrav,numtp,nat,tnao,norbv,itype,rx,ry,rz,pv1,pv2,pv3,oe,esit,keht,cf,zeta,&
-           sip,ldm,dbov,lptb,nzt,nval,lval,lpar,eshift,nelect,nkpt,kpoint,hamk,ovlk,eband)
+                sip,ldm,dbov,lptb,nzt,nval,lval,lpar,eshift,nelect,nkpt,kpoint,hamk,ovlk,eband,rcut)
 implicit none
 
 ! ----------------- Variables and Parameters of the Subroutine ----------------
@@ -44,7 +44,7 @@ integer, intent(in) :: sip(nat), ldm(0:lmax), dbov(numtp), lptb(numtp,0:lmax)
 integer, intent(in) :: nzt(numtp,3), nval(numtp,3), lval(numtp,3), nelect, nkpt
 real*8 , intent(in) :: oe(numtp,9), esit(numtp,3), cf(numtp,3,2), zeta(numtp,3,2)
 real*8 , intent(in) :: keht(numtp,numtp), rx(nat), ry(nat), rz(nat)
-real*8 , intent(in) :: pv1(3), pv2(3), pv3(3), lpar, kpoint(nkpt,3)
+real*8 , intent(in) :: pv1(3), pv2(3), pv3(3), lpar, kpoint(nkpt,3), rcut
 real*8 , intent(inout) :: eband(nkpt,tnao)
 complex*16, intent(inout) :: hamk(nkpt,tnao,tnao), ovlk(nkpt,tnao,tnao)
 ! Internals:
@@ -53,7 +53,7 @@ integer             :: llsel(0:lmax,0:lmax), nnsel(nmax,nmax), mdcount, ipbc
 integer             :: i, j, oi, oj, ct, ix, iy, iz, jo, jd, io, id, li, lj
 integer             :: izt, izoi, izoj, ik, idv, ikcount
 real*8              :: ovout(25), ui(3), uj(3), rij(3), kp(nkpt,3), eshift
-real*8              :: kpb(3), kdotr, pi, kh
+real*8              :: kpb(3), kdotr, pi, kh, rdij
 complex*16          :: hk(tnao,tnao), sk(tnao,tnao)
 ! Parametros para a subrotina de diagonalizacao (LAPACK, ZHEGVD):
 integer                  :: itp, ndm, lda, ldb, lwork, lrwork, liwork, info
@@ -156,7 +156,7 @@ rij(3) = uj(3) - ui(3)
 
 ! Excluding the case j = i in the central cell:
 
-if((j.eq.i).and.(ix.eq.0).and.(iy.eq.0).and.(iz.eq.0)) then 
+if((j == i).and.(ix == 0).and.(iy == 0).and.(iz == 0)) then 
 
 mdcount = mdcount + 1
 
@@ -166,6 +166,9 @@ mdcount = mdcount + 1
  sk(mdcount,mdcount) = sk(mdcount,mdcount) + cmplx(1.0d0,0.0d0)  ! Normalized orbitals  
 
 else
+
+rdij = dsqrt(dot_product(rij,rij))
+if(rdij > rcut) cycle
 
 call calcovlp(i,j,oi,oj,nat,numtp,nzt,nval,lval,itype,zeta,cf,ui,uj,&
               llsel,nnsel,ovout,ipbc)
